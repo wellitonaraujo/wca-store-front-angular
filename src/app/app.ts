@@ -7,7 +7,7 @@ import { Header } from './layout/header/header';
   standalone: true,
   imports: [Header, RouterOutlet],
   template: `
-    <app-header />
+    <app-header class="z-10"/>
     <main class="h-[calc(100% -64px)] overflow-auto">
       <router-outlet />
     </main>

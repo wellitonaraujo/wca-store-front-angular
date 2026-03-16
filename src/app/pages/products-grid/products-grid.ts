@@ -1,46 +1,74 @@
-import { Component, computed, signal, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Product } from '../../models/product';
-import { PRODUCTS } from '../../utils/data-mock';
+import { MatSidenavContainer, MatSidenavContent, MatSidenav } from '@angular/material/sidenav';
+import { ProductCard } from '../../components/product-card/product-card';
+import { Component, signal, inject, input, effect } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatNavList, MatListItem } from '@angular/material/list'
+import { EcommerceStore } from '../../../ecommerce-store';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-products-grid',
   standalone: true,
+  imports: [
+    ProductCard, 
+    MatSidenavContainer, 
+    MatSidenavContent, 
+    MatSidenav, 
+    MatNavList,
+    MatListItem,
+    RouterLink,
+    TitleCasePipe,
+  ],
   template: `
-    <div class="bg-gray-100 p-6">
-      <h1 class="text-2xl font-bold text-gray-900">{{ category() }}</h1>
+    <mat-sidenav-container class="h-full">
+      <mat-sidenav mode="side" opened="true">
+        <div class="p-6">
+          <h2 class="text-lg text-gray-900">Categorias</h2>
 
-      <div class="responsive-grid">
-        @for (product of filteredProducts(); track product.id) {
-          <div class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full">
-            <img [src]="product.imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
-
-            <div class="p-5 flex flex-col flex-1">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
-                {{product.name }}
-              </h3>
-            </div>
+          <mat-nav-list>
+            @for (cat of categories(); track cat) {
+              <mat-list-item 
+                [activated]=" 
+                cat === category()" 
+                class="my-2" 
+                [routerLink]="['/products', cat]"
+              >
+                <span class="font-medium" [class]="cat === category() ? '!text-white': null">
+                  {{ cat | titlecase }}
+                </span>
+              </mat-list-item>
+            }
+          </mat-nav-list>
+          
+        </div>
+      </mat-sidenav>
+      <mat-sidenav-content class="bg-gray-100 p-6 h-full">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ category() | titlecase }}</h1>
+        <p class="text-base text-gray-600 mb-6">{{ store.filteredProducts().length }} produtos</p>
+          <div class="responsive-grid min-h-[700px]">
+            @for (product of store.filteredProducts(); track product.id) {
+              <app-product-card [product]="product" />
+            }
           </div>
-        }
-      </div>
-    </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
   `,
 })
 export default class ProductsGrid {
   private route = inject(ActivatedRoute);
-  category = signal('all');
+
+  category = input('all');
+  store = inject(EcommerceStore)
 
   constructor() {
-    this.route.params.subscribe(params => {
-      this.category.set(params['category'] ?? 'all');
-    });
+    // this.route.params.subscribe(params => {
+    //   this.category.set(params['category'] ?? 'all');
+    // });
+    
+    effect(() => {
+      this.store.setCategory(this.category());
+  });
   }
 
-  products = signal<Product[]>(PRODUCTS);
-
-  filteredProducts = computed(() =>
-    this.category() === 'all'
-      ? this.products()
-      : this.products().filter(p => p.category === this.category().toLowerCase())
-  );
+  categories = signal<string[]>(['all', 'electronics', 'clothing', 'accessories', 'home', ])
 }

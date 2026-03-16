@@ -34,14 +34,23 @@ export const EcommerceStore = signalStore(
     setCategory: (category: string) => {
       patchState(store, { category });
     },
-    addToWishlist: (product: Product) => {
-        const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
-            if (draft.find(p => p.id === product.id)) {
-                draft.push(product);
-            }
-        })
 
-        patchState(store, { wishlistItems: updatedWishlistItems });
-    }
+    addToWishlist: (product: Product) => {
+      const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
+        const exists = draft.find(p => p.id === product.id);
+
+        if (!exists) {
+          draft.push(product);
+        }
+      });
+
+      patchState(store, { wishlistItems: updatedWishlistItems });
+    },
+
+    removeFromWishlist: (product: Product) => {
+      patchState(store, {
+        wishlistItems: store.wishlistItems().filter((p) => p.id !== product.id),
+      })
+  }
   }))
 );

@@ -11,7 +11,7 @@ import { HeaderActions } from '../header-actions/header-actions';
       <div class="max-w-[1200px] mx-auto w-full flex items-center justify-between">
         <span>WCA Store</span>
 
-        <app-header-actions></app-header-actions>
+        <app-header-actions />
       </div>
     </mat-toolbar>
   `,

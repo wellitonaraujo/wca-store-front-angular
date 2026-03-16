@@ -11,10 +11,12 @@ import { EcommerceStore } from '../../../ecommerce-store';
     <div class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative">
       <img [src]="product().imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
       <button 
-        class="absolute z-10 top-3 right-3 w-10 h-10 bg-white/90 hover:bg-white rounded-full p-2"
+        class="absolute cursor-pointer z-10 top-3 right-3 w-10 h-10 bg-white/90 hover:bg-white rounded-full p-2"
         (click)="favoriteClicked(product())"
       >
-        <mat-icon>favorite_border</mat-icon>
+        <mat-icon>
+        {{ isInWishlist() ? 'favorite' : 'favorite_border' }}
+      </mat-icon>
       </button>
       <div class="p-5 flex flex-col flex-1">
         <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
@@ -51,9 +53,10 @@ export class ProductCard {
 
   favoriteClicked(product: Product) {
     if (this.isInWishlist()) {
-
+      this.store.removeFromWishlist(product)
     } else {
       this.store.addToWishlist(product);
     }
   }
+
 }

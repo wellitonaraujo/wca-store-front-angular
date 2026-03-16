@@ -1,14 +1,21 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { Product } from '../../models/product';
 import { MatAnchor } from "@angular/material/button";
 import { MatIcon } from '@angular/material/icon';
+import { EcommerceStore } from '../../../ecommerce-store';
 
 @Component({
   selector: 'app-product-card',
   imports: [MatAnchor, MatIcon],
   template: `
-    <div class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full">
+    <div class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative">
       <img [src]="product().imageUrl" class="w-full h-[300px] object-cover rounded-t-xl" />
+      <button 
+        class="absolute z-10 top-3 right-3 w-10 h-10 bg-white/90 hover:bg-white rounded-full p-2"
+        (click)="favoriteClicked(product())"
+      >
+        <mat-icon>favorite_border</mat-icon>
+      </button>
       <div class="p-5 flex flex-col flex-1">
         <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
           {{product().name }}
@@ -37,4 +44,16 @@ export class ProductCard {
   product = input.required<Product>();
 
   addToCartClicked = output<Product>();
+
+  store = inject(EcommerceStore);
+
+  isInWishlist = computed(() => this.store.wishlistItems().find(p => p.id === this.product().id))
+
+  favoriteClicked(product: Product) {
+    if (this.isInWishlist()) {
+
+    } else {
+      this.store.addToWishlist(product);
+    }
+  }
 }

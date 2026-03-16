@@ -2,6 +2,7 @@ import { patchState, signalStore, withComputed, withMethods, withState } from "@
 import { PRODUCTS } from "./app/utils/data-mock";
 import { Product } from "./app/models/product";
 import { computed } from "@angular/core";
+import { produce } from 'immer';
 
 export type EcommerceState = {
   products: Product[];
@@ -33,5 +34,14 @@ export const EcommerceStore = signalStore(
     setCategory: (category: string) => {
       patchState(store, { category });
     },
+    addToWishlist: (product: Product) => {
+        const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
+            if (draft.find(p => p.id === product.id)) {
+                draft.push(product);
+            }
+        })
+
+        patchState(store, { wishlistItems: updatedWishlistItems });
+    }
   }))
 );
